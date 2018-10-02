@@ -224,22 +224,6 @@
                      ((string= n "ConstantValue")
                       (let ((i (flex:with-input-from-sequence (s data)
                                  (aref constants (read-u16 s)))))
-                        #++(format t " constant value ~s -> ~s~%"
-                                   i
-                                   (cond
-                                     ((consp i)
-                                      (lookup i))
-                                     ((string= *current-attribute-type* "C")
-                                      (code-char i))
-                                     ((and (not (member
-                                                 *current-attribute-type*
-                                                 '("I" "B" "J" "S" "Z")
-                                                 :test 'string=))
-                                           (integerp i)
-                                           (array-in-bounds-p constants i))
-                                      (list (aref constants i)
-                                            (lookup i)))))
-                        #++(list :constant-value (if (consp i) (lookup i)) i)
                         (list :constant-value
                               (ecase *current-attribute-type*
                                 ((:I :B :J :S :Z)
@@ -309,9 +293,6 @@
                  (let* ((*current-attribute-type*
                           (or (find-symbol (lookup descriptor) :keyword)
                               (lookup descriptor))))
-                   #++(when attributes
-                        (format t "~a / ~s:~%" (lookup name)
-                                *current-attribute-type*))
                    (list
                     :name (lookup name)
                     :type (lookup descriptor)
@@ -322,9 +303,6 @@
                  (let* ((*current-attribute-type*
                           (or (find-symbol (lookup descriptor) :keyword)
                               (lookup descriptor))))
-                   #++(when attributes
-                        (format t "~a / ~s:~%" (lookup name)
-                                *current-attribute-type*))
                    (list
                     :name (lookup name)
                     :type (lookup descriptor)
@@ -338,12 +316,6 @@
             :fields (map 'vector #'expand-field fields)
             :attributes (map 'list #'expand-attribute attributes)))))
 
-#++
-(print
- (with-open-file (f "d:/tmp/SensorManager.class"
-                    :element-type '(unsigned-byte 8))
-   (expand-class
-    (parse-java-classfile f))))
 
 #++
 (defvar *foo* (make-hash-table :test 'equal))
